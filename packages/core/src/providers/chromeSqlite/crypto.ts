@@ -2,6 +2,14 @@ import { createDecipheriv, pbkdf2Sync } from "node:crypto";
 
 const UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
 
+export function getChromiumEncryptedValuePrefix(encryptedValue: Uint8Array): string | null {
+	if (encryptedValue.length < 3) {
+		return null;
+	}
+	const prefix = Buffer.from(encryptedValue).subarray(0, 3).toString("utf8");
+	return /^v\d\d$/.test(prefix) ? prefix : null;
+}
+
 export function deriveAes128CbcKeyFromPassword(
 	password: string,
 	options: { iterations: number },
@@ -22,10 +30,9 @@ export function decryptChromiumAes128CbcCookieValue(
 	}
 
 	// Chromium prefixes encrypted cookies with `v10`, `v11`, ... (three bytes).
-	const prefix = buf.subarray(0, 3).toString("utf8");
-	const hasVersionPrefix = /^v\d\d$/.test(prefix);
+	const prefix = getChromiumEncryptedValuePrefix(buf);
 
-	if (!hasVersionPrefix) {
+	if (!prefix) {
 		// Some platforms (notably macOS) can store plaintext values in `encrypted_value`.
 		// Callers decide whether unknown prefixes should be treated as plaintext.
 		if (options.treatUnknownPrefixAsPlaintext === false) {
@@ -63,8 +70,8 @@ export function decryptChromiumAes256GcmCookieValue(
 	if (buf.length < 3) {
 		return null;
 	}
-	const prefix = buf.subarray(0, 3).toString("utf8");
-	if (!/^v\d\d$/.test(prefix)) {
+	const prefix = getChromiumEncryptedValuePrefix(buf);
+	if (!prefix) {
 		return null;
 	}
 

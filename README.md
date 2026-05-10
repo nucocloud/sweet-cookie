@@ -178,6 +178,19 @@ The extension export format is documented in `docs/spec.md`.
 
 `inlineCookiesFile` accepts a file path. Paths ending in `.json` or `.base64` are treated as files first, then parsed as JSON/base64 payloads.
 
+## Chromium v20 App-Bound Encryption
+
+Chrome and Edge on Windows can store some cookies with Chromium's `v20` App-Bound Encryption format. Those cookies are bound to the browser process and may not decrypt through the user-level DPAPI master key that works for classic `v10`/`v11` cookies.
+
+When a `v20` encrypted cookie fails to decrypt, Sweet Cookie skips that cookie and adds a warning to the returned `warnings` array. Other readable cookies from the same database are still returned.
+
+Workarounds for `v20` cookies:
+
+- Use the [Chrome extension](apps/extension) to export cookies inline.
+- Use Chrome DevTools Protocol (CDP) to read cookies from a running browser.
+
+Reference: [Chrome Security Blog: App-Bound Encryption](https://security.googleblog.com/2024/07/improving-security-of-chrome-cookies-on.html).
+
 ## Extension exporter
 
 `apps/extension` is a small Chrome MV3 popup that exports cookies from the current profile into the same inline format the library consumes.
