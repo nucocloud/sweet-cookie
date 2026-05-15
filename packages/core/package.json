@@ -13,6 +13,9 @@
 		"url": "git+https://github.com/steipete/sweet-cookie.git",
 		"directory": "packages/core"
 	},
+	"bin": {
+		"sweet-cookie": "dist/cli.js"
+	},
 	"files": [
 		"dist",
 		"README.md",
@@ -25,6 +28,10 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
+		},
+		"./cli": {
+			"types": "./dist/cli.d.ts",
+			"import": "./dist/cli.js"
 		}
 	},
 	"publishConfig": {

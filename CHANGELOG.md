@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add a dependency-free `sweet-cookie` CLI for extracting local browser cookies by domain or URL, with JSON and `Cookie:` header output. (`#7`, thanks `@kuizuo`)
+
 ## 0.3.0 - 2026-05-14
 
 ### Fixed
