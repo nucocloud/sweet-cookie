@@ -19,7 +19,7 @@ describe("node sqlite helper", () => {
 			value: originalVersions,
 		});
 		vi.resetModules();
-		vi.unmock("node:sqlite");
+		vi.doUnmock("node:sqlite");
 	});
 
 	it("returns false for malformed node versions", async () => {
