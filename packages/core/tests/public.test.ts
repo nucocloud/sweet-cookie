@@ -494,6 +494,48 @@ describe("public API", () => {
 		expect(res.cookies.map((c) => c.name).sort()).toEqual(["chrome", "dup", "firefox"]);
 	});
 
+	it("preserves multi-profile cookies without re-adding lower-priority browser duplicates", async () => {
+		vi.resetModules();
+
+		vi.doMock("../src/providers/chrome.js", () => ({
+			getCookiesFromChrome: async (options: { profile?: string }) => ({
+				cookies: [
+					{
+						name: "sid",
+						value: options.profile === "Work" ? "work" : "personal",
+						domain: "chatgpt.com",
+						path: "/",
+						source: { browser: "chrome", profile: options.profile },
+					},
+				],
+				warnings: [],
+			}),
+		}));
+		vi.doMock("../src/providers/safariBinaryCookies.js", () => ({
+			getCookiesFromSafari: async () => ({
+				cookies: [
+					{
+						name: "sid",
+						value: "safari",
+						domain: "chatgpt.com",
+						path: "/",
+						source: { browser: "safari" },
+					},
+				],
+				warnings: [],
+			}),
+		}));
+
+		const { getCookies } = await import("../src/index.js");
+		const res = await getCookies({
+			url: "https://chatgpt.com/",
+			browsers: ["chrome", "safari"],
+			chromeProfile: ["Personal", "Work"],
+		});
+
+		expect(res.cookies.map((cookie) => cookie.value).sort()).toEqual(["personal", "work"]);
+	});
+
 	it("mode=first returns the first non-empty browser result", async () => {
 		vi.resetModules();
 
